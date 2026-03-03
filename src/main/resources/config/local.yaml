@@ -1,0 +1,6 @@
+user:
+  email: eve.holt@reqres.in
+  password: cityslicka
+
+app:
+  message: Welcome to the Dev Environment
