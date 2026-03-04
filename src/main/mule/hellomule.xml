@@ -14,7 +14,7 @@
     <!-- Secure Properties Config (env based file required by schema) -->
     <secure-properties:config
             name="Secure_Config"
-            file="secure-${mule.env}.yaml"
+            file="config/${mule.env}.yaml"
             key="${secure.key}">
         <secure-properties:encrypt algorithm="Blowfish" mode="CBC"/>
     </secure-properties:config>
