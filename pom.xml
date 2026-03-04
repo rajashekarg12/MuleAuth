@@ -117,7 +117,7 @@
 		<repository>
 			<id>anypoint-exchange-v3</id>
 			<name>Anypoint Exchange</name>
-			<url> https://maven.anypoint.mulesoft.com/api/v3/organizations/7d8fdb77-3b25-48d1-b374-d5e4a81a4f02/maven </url>
+			<url> https://maven.anypoint.mulesoft.com/api/v3/organizations/7d8fdb77-3b25-48d1-b374-d5e4a81a4f02/maven</url>
 		</repository>
 		<snapshotRepository>
 			<id>anypoint-exchange-v3</id>
