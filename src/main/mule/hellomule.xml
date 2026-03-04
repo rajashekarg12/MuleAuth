@@ -41,12 +41,6 @@
             }
         ]"/>
 
-        <!-- Incoming values -->
-        <logger level="INFO"
-                message="#['Incoming username: [' ++ payload.username ++ ']']"/>
-
-        <logger level="INFO"
-                message="#['Incoming password: [' ++ payload.password ++ ']']"/>
 
         <!-- Runtime values -->
         <logger level="INFO"
