@@ -27,49 +27,36 @@
         <http:listener-connection host="0.0.0.0" port="8081"/>
     </http:listener-config>
 
-    <flow name="auth-flow">
+   <flow name="auth-flow">
 
-        <!-- Only POST allowed -->
-        <http:listener path="/login"
-                       config-ref="HTTP_Listener_config"
-                       allowedMethods="GET,POST"/>
+    <http:listener path="/login"
+                   config-ref="HTTP_Listener_config"
+                   allowedMethods="POST"/>
 
-        <!-- Convert payload to JSON Object -->
-        <ee:transform>
-            <ee:message>
-                <ee:set-payload><![CDATA[
-%dw 2.0
-output application/java
----
-read(payload, "application/json")
-                ]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+    <choice>
 
-        <choice>
+        <when expression="#[
+            payload.username == p('username')
+            and
+            payload.password == p('user.password')
+        ]">
 
-            <when expression="#[
-                payload.username == p('username')
-                and
-                payload.password == p('user.password')
-            ]">
+            <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
+                         mimeType="application/json"/>
 
-                <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
-                             mimeType="application/json"/>
+        </when>
 
-            </when>
+        <otherwise>
 
-            <otherwise>
+            <set-payload value='{"status":"FAILED","message":"Invalid credentials"}'
+                         mimeType="application/json"/>
 
-                <set-payload value='{"status":"FAILED","message":"Invalid credentials"}'
-                             mimeType="application/json"/>
+        </otherwise>
 
-            </otherwise>
+    </choice>
 
-        </choice>
+    <logger level="INFO" message="#[payload]"/>
 
-        <logger level="INFO" message="#[payload]"/>
-
-    </flow>
+</flow>
 
 </mule>
