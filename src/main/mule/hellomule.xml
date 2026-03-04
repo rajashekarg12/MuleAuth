@@ -32,7 +32,7 @@
         <!-- Only POST allowed -->
         <http:listener path="/login"
                        config-ref="HTTP_Listener_config"
-                       allowedMethods="POST"/>
+                       allowedMethods="GET,POST"/>
 
         <!-- Convert payload to JSON Object -->
         <ee:transform>
