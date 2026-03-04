@@ -9,10 +9,8 @@
         http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
         http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 
-    <!-- Load YAML -->
     <configuration-properties file="config/${mule.env}.yaml"/>
 
-    <!-- Secure Properties -->
     <secure-properties:config
             name="Secure_Config"
             file="config/${mule.env}.yaml"
@@ -20,7 +18,6 @@
         <secure-properties:encrypt algorithm="Blowfish" mode="CBC"/>
     </secure-properties:config>
 
-    <!-- HTTP Listener -->
     <http:listener-config name="HTTP_Listener_config">
         <http:listener-connection host="0.0.0.0" port="8081"/>
     </http:listener-config>
@@ -31,32 +28,16 @@
                        config-ref="HTTP_Listener_config"
                        allowedMethods="GET"/>
 
-        <!-- Authentication -->
-        <choice>
-
-            <when expression="#[
-                upper(trim((attributes.queryParams.username default '') as String))
-                ==
-                upper(trim(p('username')))
-                and
-                trim((attributes.queryParams.password default '') as String)
-                ==
-                trim(p('secure::user.password'))
-            ]">
-
-                <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
-                             mimeType="application/json"/>
-
-            </when>
-
-            <otherwise>
-
-                <set-payload value='{"status":"FAILED","message":"Invalid credentials"}'
-                             mimeType="application/json"/>
-
-            </otherwise>
-
-        </choice>
+        <!-- DEBUG: Return everything -->
+        <set-payload value="#[
+            {
+                incomingUsername: attributes.queryParams.username,
+                incomingPassword: attributes.queryParams.password,
+                runtimeUsername: p('username'),
+                runtimePassword: p('secure::user.password')
+            }
+        ]"
+        mimeType="application/json"/>
 
     </flow>
 
