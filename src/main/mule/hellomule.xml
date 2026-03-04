@@ -10,7 +10,7 @@
         http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
         http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
         http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
-	<!-- Secure Properties Config (env based file required by schema) -->
+	<!-- Secure Properties Config -->
 	<secure-properties:config
             name="Secure_Config"
             file="config/${mule.env}.yaml"
@@ -22,32 +22,54 @@
 		<http:listener-connection host="0.0.0.0" port="8081"/>
 	</http:listener-config>
 	<flow name="auth-flow">
-		<http:listener path="/login"
-                       config-ref="HTTP_Listener_config"
+		<http:listener config-ref="HTTP_Listener_config"
+                       path="/login"
                        allowedMethods="GET"/>
 		<choice>
+			<!-- SUCCESS CONDITION -->
 			<when expression="#[
-        trim((p('username') default '') as String) == 'raj'
-        and
-        trim((p('secure::user.password') default '') as String) == 'welcome1'
-    ]">
-				<set-payload mimeType="application/json"
-                     value='#[{
-                         status: "SUCCESS",
-                         message: "Login successful",
-                         appMessage: p("app.message")
-                     }]'/>
+                trim(attributes.queryParams.username default '') == 'raj'
+                and
+                trim(p('secure::user.password') default '') == 'welcome1'
+            ]">
+				<ee:transform doc:name="Success Response">
+					<ee:message>
+						<ee:set-payload>
+							<![CDATA[
+%dw 2.0
+output application/json
+---
+{
+    status: "SUCCESS",
+    message: "Login successful",
+    appMessage: p("app.message")
+}
+                        ]]>
+						</ee:set-payload>
+					</ee:message>
+				</ee:transform>
 			</when>
+			<!-- FAILURE CONDITION -->
 			<otherwise>
-				<set-payload mimeType="application/json"
-                     value='#[{
-                         status: "FAILED",
-                         message: "Invalid credentials",
-                         debug: {
-                             runtimeUsername: p("username"),
-                             decryptedPassword: p("secure::user.password")
-                         }
-                     }]'/>
+				<ee:transform doc:name="Failure Response">
+					<ee:message>
+						<ee:set-payload>
+							<![CDATA[
+%dw 2.0
+output application/json
+---
+{
+    status: "FAILED",
+    message: "Invalid credentials",
+    debug: {
+        runtimeUsername: attributes.queryParams.username default "",
+        decryptedPassword: p("secure::user.password")
+    }
+}
+                        ]]>
+						</ee:set-payload>
+					</ee:message>
+				</ee:transform>
 			</otherwise>
 		</choice>
 	</flow>
