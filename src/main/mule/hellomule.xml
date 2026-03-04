@@ -39,7 +39,7 @@
                 trim((p('secure::user.password') default '') as String) == 'welcome1'
             ]">
 
-                <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
+                <set-payload value='{"status":"SUCCESS","message":"Login successful","app message": p('app.message')}'
                              mimeType="application/json"/>
 
             </when>
