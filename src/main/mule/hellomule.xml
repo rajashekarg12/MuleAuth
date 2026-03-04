@@ -3,20 +3,23 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
       xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="
         http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
         http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
         http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 
-    <!-- Secure Properties using environment file -->
+    <!-- Secure Properties Config (env based file required by schema) -->
     <secure-properties:config
             name="Secure_Config"
-            file="config/${mule.env}.yaml"
+            file="secure-${mule.env}.yaml"
             key="${secure.key}">
         <secure-properties:encrypt algorithm="Blowfish" mode="CBC"/>
     </secure-properties:config>
 
+    <!-- HTTP Listener -->
     <http:listener-config name="HTTP_Listener_config">
         <http:listener-connection host="0.0.0.0" port="8081"/>
     </http:listener-config>
@@ -29,10 +32,11 @@
 
         <choice>
 
+            <!-- SUCCESS CONDITION -->
             <when expression="#[
-                p('username') == 'chandhu'
+                trim((p('username') default '') as String) == 'chandhu'
                 and
-                p('secure::password') == 'welcome1'
+                trim((p('secure::password') default '') as String) == 'welcome1'
             ]">
 
                 <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
@@ -40,10 +44,26 @@
 
             </when>
 
+            <!-- FAILURE -->
             <otherwise>
 
-                <set-payload value='{"status":"FAILED","message":"Invalid credentials"}'
-                             mimeType="application/json"/>
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+%dw 2.0
+output application/json
+---
+{
+  status: "FAILED",
+  message: "Invalid credentials",
+  debug: {
+    runtimeUsername: p('username'),
+    decryptedPassword: p('secure::password')
+  }
+}
+                        ]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
 
             </otherwise>
 
