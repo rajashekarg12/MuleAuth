@@ -9,14 +9,14 @@
         http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
         http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 
-    <!-- Secure Properties using runtime password -->
+    <!-- Secure Properties using environment file -->
     <secure-properties:config
             name="Secure_Config"
+            file="config/${mule.env}.yaml"
             key="${secure.key}">
         <secure-properties:encrypt algorithm="Blowfish" mode="CBC"/>
     </secure-properties:config>
 
-    <!-- HTTP Listener -->
     <http:listener-config name="HTTP_Listener_config">
         <http:listener-connection host="0.0.0.0" port="8081"/>
     </http:listener-config>
@@ -27,7 +27,6 @@
                        config-ref="HTTP_Listener_config"
                        allowedMethods="GET"/>
 
-        <!-- Authentication -->
         <choice>
 
             <when expression="#[
