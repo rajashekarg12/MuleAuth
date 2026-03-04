@@ -42,7 +42,7 @@ output application/json
 {
     status: "SUCCESS",
     message: "Login successful",
-    appMessage: p("app.message")
+    appMessage: p('app.message')
 }
                         ]]>
 						</ee:set-payload>
