@@ -14,7 +14,7 @@
     <!-- Load YAML -->
     <configuration-properties file="config/${mule.env}.yaml"/>
 
-    <!-- Secure Properties Config -->
+    <!-- Secure Properties (same YAML file) -->
     <secure-properties:config
             name="Secure_Config"
             file="config/${mule.env}.yaml"
@@ -33,30 +33,28 @@
                        config-ref="HTTP_Listener_config"
                        allowedMethods="GET"/>
 
-        <!-- Internally set fixed test credentials -->
-        <ee:transform>
-            <ee:message>
-                <ee:set-payload><![CDATA[
-%dw 2.0
-output application/java
----
-{
-    username: "chandhu",
-    password: "welcome1"
-}
-                ]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+        <!-- Read query parameters from browser -->
+        <set-payload value="#[
+            {
+                username: attributes.queryParams.username,
+                password: attributes.queryParams.password
+            }
+        ]"/>
 
-          <logger level="INFO" message="#['Runtime username: ' ++ p('username')]"/>
-<logger level="INFO" message="#['Decrypted password: ' ++ p('user.password')]"/>
+        <!-- Logging -->
+        <logger level="INFO"
+                message="#['Runtime username: ' ++ p('username')]"/>
 
+        <logger level="INFO"
+                message="#['Decrypted password: ' ++ p('secure::user.password')]"/>
+
+        <!-- Authentication Logic -->
         <choice>
 
             <when expression="#[
                 payload.username == p('username')
                 and
-                payload.password == p('user.password')
+                payload.password == p('secure::user.password')
             ]">
 
                 <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
