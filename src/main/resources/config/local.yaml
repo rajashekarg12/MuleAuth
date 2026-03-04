@@ -1,5 +1,5 @@
+  # Sandbox.yaml
 user:
-  password: ![R1CBXNiKbqzyNLNSNEzQ8Q==]
+  password: "![R1CBXNiKbqzyNLNSNEzQ8Q==]" 
 app:
-  message: Welcome to the Local Environment
-
+  message: "Welcome to the Sandbox Environment"
