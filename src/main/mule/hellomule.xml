@@ -27,7 +27,7 @@
                        allowedMethods="GET"/>
 		<choice>
 			<when expression="#[
-        trim((p('username') default '') as String) == 'chandhu'
+        trim((p('username') default '') as String) == 'raj'
         and
         trim((p('secure::user.password') default '') as String) == 'welcome1'
     ]">
