@@ -27,36 +27,49 @@
         <http:listener-connection host="0.0.0.0" port="8081"/>
     </http:listener-config>
 
-   <flow name="auth-flow">
+    <flow name="auth-flow">
 
-    <http:listener path="/login"
-                   config-ref="HTTP_Listener_config"
-                   allowedMethods="POST,GET"/>
+        <http:listener path="/login"
+                       config-ref="HTTP_Listener_config"
+                       allowedMethods="GET"/>
 
-    <choice>
+        <!-- Set default values if query params not provided -->
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+%dw 2.0
+output application/java
+---
+{
+    username: attributes.queryParams.username default "chandhu",
+    password: attributes.queryParams.password default "defaultPassword"
+}
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
 
-        <when expression="#[
-            payload.username == p('username')
-            and
-            payload.password == p('user.password')
-        ]">
+        <choice>
 
-            <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
-                         mimeType="application/json"/>
+            <when expression="#[
+                payload.username == p('username')
+                and
+                payload.password == p('user.password')
+            ]">
 
-        </when>
+                <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
+                             mimeType="application/json"/>
 
-        <otherwise>
+            </when>
 
-            <set-payload value='{"status":"FAILED","message":"Invalid credentials"}'
-                         mimeType="application/json"/>
+            <otherwise>
 
-        </otherwise>
+                <set-payload value='{"status":"FAILED","message":"Invalid credentials"}'
+                             mimeType="application/json"/>
 
-    </choice>
+            </otherwise>
 
-    <logger level="INFO" message="#[payload]"/>
+        </choice>
 
-</flow>
+    </flow>
 
 </mule>
