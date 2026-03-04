@@ -2,19 +2,17 @@
 
 <mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
       xmlns="http://www.mulesoft.org/schema/mule/core"
-      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
       xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="
         http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
         http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-        http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
         http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 
     <!-- Load YAML -->
     <configuration-properties file="config/${mule.env}.yaml"/>
 
-    <!-- Secure Properties (same YAML file) -->
+    <!-- Secure Properties -->
     <secure-properties:config
             name="Secure_Config"
             file="config/${mule.env}.yaml"
@@ -33,29 +31,17 @@
                        config-ref="HTTP_Listener_config"
                        allowedMethods="GET"/>
 
-        <!-- Read query parameters -->
-        <set-payload value="#[
-            {
-                username: attributes.queryParams.username default '',
-                password: attributes.queryParams.password default ''
-            }
-        ]"/>
-
-
-        <!-- Runtime values -->
-        <logger level="INFO"
-                message="#['Runtime username: ' ++ p('username')]"/>
-
-        <logger level="INFO"
-                message="#['Decrypted password: ' ++ p('secure::user.password')]"/>
-
-        <!-- Authentication Logic -->
+        <!-- Authentication -->
         <choice>
 
             <when expression="#[
-                upper(trim(payload.username)) == upper(trim(p('username')))
+                upper(trim((attributes.queryParams.username default '') as String))
+                ==
+                upper(trim(p('username')))
                 and
-                trim(payload.password) == trim(p('secure::user.password'))
+                trim((attributes.queryParams.password default '') as String)
+                ==
+                trim(p('secure::user.password'))
             ]">
 
                 <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
