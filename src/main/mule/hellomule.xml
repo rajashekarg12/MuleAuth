@@ -33,7 +33,7 @@
                        config-ref="HTTP_Listener_config"
                        allowedMethods="GET"/>
 
-        <!-- Set default values if query params not provided -->
+        <!-- Internally set fixed test credentials -->
         <ee:transform>
             <ee:message>
                 <ee:set-payload><![CDATA[
@@ -41,8 +41,8 @@
 output application/java
 ---
 {
-    username: attributes.queryParams.username default "chandhu",
-    password: attributes.queryParams.password default "defaultPassword"
+    username: "chandhu",
+    password: "welcome1"
 }
                 ]]></ee:set-payload>
             </ee:message>
