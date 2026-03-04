@@ -36,7 +36,7 @@
             <when expression="#[
                 trim((p('username') default '') as String) == 'chandhu'
                 and
-                trim((p('secure::password') default '') as String) == 'welcome1'
+                trim((p('secure::user.password') default '') as String) == 'welcome1'
             ]">
 
                 <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
