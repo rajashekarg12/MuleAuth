@@ -26,11 +26,12 @@
                        allowedMethods="GET"/>
 		<choice>
 			<!-- SUCCESS CONDITION -->
-			<when expression="#[
-                trim(attributes.queryParams.username default '') == 'raj'
-                and
-                trim(p('secure::user.password') default '') == 'welcome1'
-            ]">
+		
+				<when expression="#[
+    trim(p('username') default '') == 'raj'
+    and
+    trim(p('secure::user.password') default '') == 'welcome1'
+]">
 				<ee:transform doc:name="Success Response">
 					<ee:message>
 						<ee:set-payload>
