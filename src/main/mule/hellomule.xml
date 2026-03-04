@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
-      xmlns="http://www.mulesoft.org/schema/mule/core"
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="
         http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
         http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
         http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 
-    <configuration-properties file="config/${mule.env}.yaml"/>
-
+    <!-- Secure Properties using runtime password -->
     <secure-properties:config
             name="Secure_Config"
-            file="config/${mule.env}.yaml"
             key="${secure.key}">
         <secure-properties:encrypt algorithm="Blowfish" mode="CBC"/>
     </secure-properties:config>
 
+    <!-- HTTP Listener -->
     <http:listener-config name="HTTP_Listener_config">
         <http:listener-connection host="0.0.0.0" port="8081"/>
     </http:listener-config>
@@ -28,16 +27,28 @@
                        config-ref="HTTP_Listener_config"
                        allowedMethods="GET"/>
 
-        <!-- DEBUG: Return everything -->
-        <set-payload value="#[
-            {
-                incomingUsername: attributes.queryParams.username,
-                incomingPassword: attributes.queryParams.password,
-                runtimeUsername: p('username'),
-                runtimePassword: p('secure::user.password')
-            }
-        ]"
-        mimeType="application/json"/>
+        <!-- Authentication -->
+        <choice>
+
+            <when expression="#[
+                p('username') == 'chandhu'
+                and
+                p('secure::password') == 'welcome1'
+            ]">
+
+                <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
+                             mimeType="application/json"/>
+
+            </when>
+
+            <otherwise>
+
+                <set-payload value='{"status":"FAILED","message":"Invalid credentials"}'
+                             mimeType="application/json"/>
+
+            </otherwise>
+
+        </choice>
 
     </flow>
 
