@@ -14,13 +14,13 @@
     <!-- Load YAML -->
     <configuration-properties file="config/${mule.env}.yaml"/>
 
-    <!-- Secure Config (same file) -->
-      <secure-properties:config
-        name="Secure_Config"
-        file="config/${mule.env}.yaml"
-        key="${secure.key}">
-    <secure-properties:encrypt algorithm="Blowfish" mode="CBC"/>
-</secure-properties:config>
+    <!-- Secure Properties Config -->
+    <secure-properties:config
+            name="Secure_Config"
+            file="config/${mule.env}.yaml"
+            key="${secure.key}">
+        <secure-properties:encrypt algorithm="Blowfish" mode="CBC"/>
+    </secure-properties:config>
 
     <!-- HTTP Listener -->
     <http:listener-config name="HTTP_Listener_config">
@@ -29,20 +29,29 @@
 
     <flow name="auth-flow">
 
-        <http:listener path="/login" config-ref="HTTP_Listener_config"/>
+        <!-- Only POST allowed -->
+        <http:listener path="/login"
+                       config-ref="HTTP_Listener_config"
+                       allowedMethods="POST"/>
 
-        <!-- Expect JSON Body -->
-        <!-- {
-             "username": "chandhu",
-             "password": "mySecret123"
-        } -->
+        <!-- Convert payload to JSON Object -->
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+%dw 2.0
+output application/java
+---
+read(payload, "application/json")
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
 
         <choice>
 
             <when expression="#[
-                payload.username == p('auth.username')
+                payload.username == p('username')
                 and
-                payload.password == p('auth.password')
+                payload.password == p('user.password')
             ]">
 
                 <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
