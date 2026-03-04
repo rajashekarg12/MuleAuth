@@ -57,16 +57,11 @@
         <!-- Authentication Logic -->
         <choice>
 
-            <when expression="#[
-                payload.username == p('username')
-                and
-                payload.password == p('secure::user.password')
-            ]">
-
-                <set-payload value='{"status":"SUCCESS","message":"Login successful"}'
-                             mimeType="application/json"/>
-
-            </when>
+              <when expression="#[
+    upper(trim(payload.username)) == upper(trim(p('username')))
+    and
+    trim(payload.password) == trim(p('secure::user.password'))
+]">
 
             <otherwise>
 
