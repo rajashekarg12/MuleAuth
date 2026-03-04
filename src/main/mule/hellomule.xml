@@ -48,6 +48,9 @@ output application/java
             </ee:message>
         </ee:transform>
 
+          <logger level="INFO" message="#['Runtime username: ' ++ p('username')]"/>
+<logger level="INFO" message="#['Decrypted password: ' ++ p('user.password')]"/>
+
         <choice>
 
             <when expression="#[
