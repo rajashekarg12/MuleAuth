@@ -1,41 +1,42 @@
-<mule xmlns="http://www.mulesoft.org/schema/mule/core"
-      xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
-      xmlns:http="http://www.mulesoft.org/schema/mule/http"
-      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<mule
+    xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+    xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="
         http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
         http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
         http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
         http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
-	<!-- Secure Properties Config -->
-	<secure-properties:config
+    <!-- Secure Properties Config -->
+    <configuration-properties file="config/${mule.env}.yaml"/>
+    <secure-properties:config
             name="Secure_Config"
             file="config/${mule.env}.yaml"
             key="${secure.key}">
-		<secure-properties:encrypt algorithm="Blowfish" mode="CBC"/>
-	</secure-properties:config>
-	<!-- HTTP Listener -->
-	<http:listener-config name="HTTP_Listener_config">
-		<http:listener-connection host="0.0.0.0" port="8081"/>
-	</http:listener-config>
-	<flow name="auth-flow">
-		<http:listener config-ref="HTTP_Listener_config"
+        <secure-properties:encrypt algorithm="Blowfish" mode="CBC"/>
+    </secure-properties:config>
+    <!-- HTTP Listener -->
+    <http:listener-config name="HTTP_Listener_config">
+        <http:listener-connection host="0.0.0.0" port="8081"/>
+    </http:listener-config>
+    <flow name="auth-flow">
+        <http:listener config-ref="HTTP_Listener_config"
                        path="/login"
                        allowedMethods="GET"/>
-		<choice>
-			<!-- SUCCESS CONDITION -->
-		
-				<when expression="#[
+        <choice>
+            <!-- SUCCESS CONDITION -->
+            <when expression="#[
     trim(p('username') default '') == 'raj'
     and
     trim(p('secure::user.password') default '') == 'welcome1'
 ]">
-				<ee:transform doc:name="Success Response">
-					<ee:message>
-						<ee:set-payload>
-							<![CDATA[
+                <ee:transform doc:name="Success Response">
+                    <ee:message>
+                        <ee:set-payload>
+                            <![CDATA[
 %dw 2.0
 output application/json
 ---
@@ -45,16 +46,16 @@ output application/json
     appMessage: p('app.message')
 }
                         ]]>
-						</ee:set-payload>
-					</ee:message>
-				</ee:transform>
-			</when>
-			<!-- FAILURE CONDITION -->
-			<otherwise>
-				<ee:transform doc:name="Failure Response">
-					<ee:message>
-						<ee:set-payload>
-							<![CDATA[
+                        </ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+            </when>
+            <!-- FAILURE CONDITION -->
+            <otherwise>
+                <ee:transform doc:name="Failure Response">
+                    <ee:message>
+                        <ee:set-payload>
+                            <![CDATA[
 %dw 2.0
 output application/json
 ---
@@ -67,10 +68,10 @@ output application/json
     }
 }
                         ]]>
-						</ee:set-payload>
-					</ee:message>
-				</ee:transform>
-			</otherwise>
-		</choice>
-	</flow>
+                        </ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+            </otherwise>
+        </choice>
+    </flow>
 </mule>
